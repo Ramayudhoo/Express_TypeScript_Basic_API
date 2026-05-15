@@ -1,56 +1,48 @@
 import { Request, Response } from "express";
+import prisma from "../lib/prisma";
 
-const users = [
-  {
-    id: 1,
-    name: "Rama",
-    email: "rama@gmail.com",
-    password: "123456",
-  },
-  {
-    id: 2,
-    name: "Budi",
-    email: "budi@gmail.com",
-    password: "abcdef",
-  },
-];
+export const getAllUsers = async (req: Request, res: Response) => {
+  try {
+    const users = await prisma.user.findMany({
+      include: {
+        products: true,
+      },
+    });
 
-export const hello = (req: Request, res: Response) => {
-  return res.send("Hello World");
+    return res.status(200).json({
+      message: "Success get all users",
+      data: users,
+    });
+  } catch (error) {
+    console.error(error);
+
+    return res.status(500).json({
+      error: "Failed to fetch users",
+    });
+  }
 };
 
-export const getAllUsers = (req: Request, res: Response) => {
-  return res.json({
-    message: "Success get all users",
-    data: users,
-  });
-};
+export const createUser = async (req: Request, res: Response) => {
+  try {
+    const { name, email, password } = req.body;
 
-export const getUserById = (req: Request, res: Response) => {
-  const id = Number(req.params.id);
+    const newUser = await prisma.user.create({
+      data: {
+        name,
+        email,
+        password,
+      },
+    });
 
-  const user = users.find((user) => user.id === id);
+    return res.status(201).json({
+      message: "User created successfully",
+      data: newUser,
+    });
+  } catch (error) {
+    console.error(error);
 
-  return res.json({
-    message: "Success get user",
-    data: user,
-  });
-};
-
-export const login = (req: Request, res: Response) => {
-  const { id, name, email, password } = req.body;
-
-  const newUser = {
-    id,
-    name,
-    email,
-    password,
-  };
-
-  users.push(newUser);
-
-  return res.json({
-    message: "User created successfully",
-    data: newUser,
-  });
+    return res.status(500).json({
+      error: "Failed to create user",
+    });
+  }
 };
