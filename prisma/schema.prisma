@@ -28,5 +28,6 @@ model User {
   email     String   @unique
   password  String 
   products Product[] @relation("UserProducts")
+  point Int @default(0)
   createdAt DateTime @default(now())
 }
