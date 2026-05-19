@@ -6,12 +6,15 @@ import {
   deleteProduct,
   updateProduct,
 } from "../controllers/productController";
+import { authenticate } from "../middleware/authMiddleware";
+import { authorizeRole } from "../middleware/authorizeRole";
+import { upload } from "../lib/multer";
 
 const router = Router();
 
-router.post("/", createProduct);
-router.get("/", getProducts);
-router.get("/:id", getProductById);
-router.put("/:id", updateProduct);
-router.delete("/:id", deleteProduct);
+router.post("/", authenticate, upload.single("image"), createProduct);
+router.get("/", authenticate, authorizeRole(["ADMIN"]), getProducts);
+router.get("/:id", authenticate, getProductById);
+router.put("/:id", authenticate, updateProduct);
+router.delete("/:id", authenticate, deleteProduct);
 export default router;
