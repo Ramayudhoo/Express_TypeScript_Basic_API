@@ -3,13 +3,17 @@ import prisma from "../lib/prisma";
 
 export const createProduct = async (req: Request, res: Response) => {
   try {
-    const { name, price, description, userId } = req.body;
+    const { name, price, description } = req.body;
+    const userId = (req as any).user.userId;
+    const image = req.file ? req.file.filename : null;
+    console.log(req.file);
     const newProduct = await prisma.product.create({
       data: {
         name: name,
         price: Number(price),
         description: description,
         userId: Number(userId),
+        image: image,
       },
     });
 
@@ -98,12 +102,14 @@ export const updateProduct = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const { name, price, description } = req.body;
+    const image = req.file ? req.file.filename : null;
     const updatedProduct = await prisma.product.update({
       where: { id: Number(id) },
       data: {
         name: name,
         price: Number(price),
         description: description,
+        image: image,
       },
     });
     return res.status(200).json({
